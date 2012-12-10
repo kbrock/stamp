@@ -6,12 +6,12 @@ module Stamp
     def initialize(field=nil, legacy=nil, &block)
       @field=field
       @legacy=legacy
-      @formatter=block || lambda() {|d| d.send(@field) }
+      @formatter=block || lambda() {|d| d }
     end
 
     def format(d)
-      #@formatter.call(d.send(@field))
-      @formatter.call(d)
+      @formatter.call(@field ? d.send(@field) : d)
+      #@formatter.call(d)
     end
     alias :call :format
     def inspect ; "[#{field||self.class.name} (#{legacy})]" ; end

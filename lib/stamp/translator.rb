@@ -21,23 +21,24 @@ module Stamp
 
     # supporting basic ones, not sure how extensive to make this
     LEGACY = {
-      '%A' => Emitter.new(:wday, '%A')  { |d| Date::DAYNAMES[d.wday] },
-      '%B' => Emitter.new(:month, '%B') { |d| Date::MONTHNAMES[d.month] },
-      '%H' => Emitter.new(:hour, '%H')  { |d| "%2d" % d.hour }, # 24-hour clock
-      '%I' => Emitter.new(:hour, '%I')  { |d| "%2.2d" % ((d.send(:hour) -1) % 12 +1) }, # 12-hour clock with leading zero
-      '%M' => Emitter.new(:min, '%M')   { |d| "%2.2d" % d.min },
-      '%P' => Emitter.new(:hour, '%P')  { |d| d.hour < 12 ? "am" : "pm" },
-      '%S' => Emitter.new(:sec, '%S')   { |d| "%2.2d" % d.sec },
-      '%Y' => Emitter.new(:year, '%Y')  { |d| d.year },
+      '%A' => Emitter.new(:wday, '%A')  { |v| Date::DAYNAMES[v] },
+      '%B' => Emitter.new(:month, '%B') { |v| Date::MONTHNAMES[v] },
+      '%Y' => Emitter.new(:year, '%C')  { |v| "%2d" % (v/100).floor },
+      '%H' => Emitter.new(:hour, '%H')  { |v| "%2d" % v }, # 24-hour clock
+      '%I' => Emitter.new(:hour, '%I')  { |v| "%2.2d" % ((v -1) % 12 +1) }, # 12-hour clock with leading zero
+      '%M' => Emitter.new(:min, '%M')   { |v| "%2.2d" % v },
+      '%P' => Emitter.new(:hour, '%P')  { |v| v < 12 ? "am" : "pm" },
+      '%S' => Emitter.new(:sec, '%S')   { |v| "%2.2d" % v },
+      '%Y' => Emitter.new(:year, '%Y'),
       '%Z' => Emitter.new(:zone, '%Z'),
-      '%a' => Emitter.new(:wday, '%a')  { |d| Date::ABBR_DAYNAMES[d.wday] },
-      '%b' => Emitter.new(:month, '%b') { |d| Date::ABBR_MONTHNAMES[d.month] },
-      '%d' => Emitter.new(:day, '%d')   { |d| "%2.2d" % d.day },
-      '%e' => Emitter.new(:day, '%e')   { |d| "%2d" % d.day }, # day without leading zero
-      '%l' => Emitter.new(:hour, '%l')  { |d| "%2d" % ((d.send(:hour) -1) % 12 +1) }, # hour without leading zero (but leading space)
-      '%m' => Emitter.new(:month, '%m') { |d| "%2.2d" % d.month },
-      '%p' => Emitter.new(:hour, '%P')  { |d| d.hour < 12 ? "AM" : "PM" },
-      '%y' => Emitter.new(:year, '%y')  { |d| "%2.2d" % (d.year % 100) }
+      '%a' => Emitter.new(:wday, '%a')  { |v| Date::ABBR_DAYNAMES[v] },
+      '%b' => Emitter.new(:month, '%b') { |v| Date::ABBR_MONTHNAMES[v] },
+      '%d' => Emitter.new(:day, '%d')   { |v| "%2.2d" % v },
+      '%e' => Emitter.new(:day, '%e')   { |v| "%2d" % v }, # day without leading zero
+      '%l' => Emitter.new(:hour, '%l')  { |v| "%2d" % ((v -1) % 12 +1) }, # hour without leading zero (but leading space)
+      '%m' => Emitter.new(:month, '%m') { |v| "%2.2d" % v },
+      '%p' => Emitter.new(:hour, '%P')  { |v| v < 12 ? "AM" : "PM" },
+      '%y' => Emitter.new(:year, '%y')  { |v| "%2.2d" % (v % 100) }
     }
 
     # Disambiguate based on value
@@ -137,8 +138,7 @@ module Stamp
         LEGACY['%Y']
 
       when ORDINAL_DAY_REGEXP
-        Emitter.new(:day, '%TH') do |d|
-          number=d.day
+        Emitter.new(:day, '%TH') do |number|
           if number.to_i % 100 / 10 == 1
             "#{number}th"
           else
